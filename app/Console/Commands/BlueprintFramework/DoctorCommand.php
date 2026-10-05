@@ -70,10 +70,10 @@ class DoctorCommand extends Command
                 elseif ($row['status'] === Severity::ERROR || $row['status'] === Severity::CRITICAL) { $marker = '✗'; $markerColor = 'red'; }
 
                 $this->line(sprintf(
-                    '  %-18s %-22s <%s>%s</>',
+                    '  %-18s %-22s <fg=%s>%s</>',
                     $row['label'],
                     $row['value'],
-                    $markerColor,
+                    $markerColor,     // "green", "yellow", "red"
                     $marker,
                 ));
             }
