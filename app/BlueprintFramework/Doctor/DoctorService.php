@@ -9,7 +9,6 @@ use Pterodactyl\BlueprintFramework\Doctor\Checks\DatabaseCheck;
 use Pterodactyl\BlueprintFramework\Doctor\Checks\EnvironmentCheck;
 use Pterodactyl\BlueprintFramework\Doctor\Checks\ExtensionCheck;
 use Pterodactyl\BlueprintFramework\Doctor\Checks\IntegrityCheck;
-use Pterodactyl\BlueprintFramework\Doctor\Checks\MigrationCheck;
 use Pterodactyl\BlueprintFramework\Doctor\Checks\PterodactylCheck;
 use Illuminate\Support\Facades\Artisan;
 
@@ -27,7 +26,6 @@ class DoctorService
         CacheCheck $cache,
         ExtensionCheck $extensions,
         IntegrityCheck $integrity,
-        MigrationCheck $migrations,
     ) {
         $this->checks = [
             $environment,
@@ -38,7 +36,6 @@ class DoctorService
             $cache,
             $extensions,
             $integrity,
-            $migrations,
         ];
     }
 
