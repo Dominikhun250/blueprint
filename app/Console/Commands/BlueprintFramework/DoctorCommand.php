@@ -70,10 +70,10 @@ class DoctorCommand extends Command
                 elseif ($row['status'] === Severity::ERROR || $row['status'] === Severity::CRITICAL) { $marker = '✗'; $markerColor = 'red'; }
 
                 $this->line(sprintf(
-                    '  %-18s %-22s <fg=%s>%s</>',
+                    '  %-18s %-30s <fg=%s>%s</>',
                     $row['label'],
                     $row['value'],
-                    $markerColor,     // "green", "yellow", "red"
+                    $markerColor,
                     $marker,
                 ));
             }
@@ -97,8 +97,10 @@ class DoctorCommand extends Command
 
         $this->line('<fg=gray>────────────────────────────────</>');
         $this->line('Result:');
-        $this->line('  ' . $report->countBySeverity(Severity::WARNING) . ' warning' . ($report->countBySeverity(Severity::WARNING) === 1 ? '' : 's'));
-        $this->line('  ' . ($report->countBySeverity(Severity::ERROR) + $report->countBySeverity(Severity::CRITICAL)) . ' error' . (($report->countBySeverity(Severity::ERROR) + $report->countBySeverity(Severity::CRITICAL)) === 1 ? '' : 's'));
+        $warnings = $report->countBySeverity(Severity::WARNING);
+        $errors = $report->countBySeverity(Severity::ERROR) + $report->countBySeverity(Severity::CRITICAL);
+        $this->line("  {$warnings} warning" . ($warnings === 1 ? '' : 's'));
+        $this->line("  {$errors} error" . ($errors === 1 ? '' : 's'));
         $this->newLine();
     }
 }

@@ -9,7 +9,15 @@ use Pterodactyl\BlueprintFramework\Doctor\Checks\DatabaseCheck;
 use Pterodactyl\BlueprintFramework\Doctor\Checks\EnvironmentCheck;
 use Pterodactyl\BlueprintFramework\Doctor\Checks\ExtensionCheck;
 use Pterodactyl\BlueprintFramework\Doctor\Checks\IntegrityCheck;
+use Pterodactyl\BlueprintFramework\Doctor\Checks\LogCheck;
+use Pterodactyl\BlueprintFramework\Doctor\Checks\PermissionsCheck;
 use Pterodactyl\BlueprintFramework\Doctor\Checks\PterodactylCheck;
+use Pterodactyl\BlueprintFramework\Doctor\Checks\QueueCheck;
+use Pterodactyl\BlueprintFramework\Doctor\Checks\ResourceCheck;
+use Pterodactyl\BlueprintFramework\Doctor\Checks\RouteCheck;
+use Pterodactyl\BlueprintFramework\Doctor\Checks\SecurityCheck;
+use Pterodactyl\BlueprintFramework\Doctor\Checks\StorageCheck;
+use Pterodactyl\BlueprintFramework\Doctor\Checks\VersionCheck;
 use Illuminate\Support\Facades\Artisan;
 
 class DoctorService
@@ -21,11 +29,19 @@ class DoctorService
         EnvironmentCheck $environment,
         BlueprintCheck $blueprint,
         PterodactylCheck $pterodactyl,
-        DatabaseCheck $database,
         ConfigurationCheck $configuration,
+        DatabaseCheck $database,
         CacheCheck $cache,
         ExtensionCheck $extensions,
         IntegrityCheck $integrity,
+        QueueCheck $queue,
+        PermissionsCheck $permissions,
+        StorageCheck $storage,
+        LogCheck $logs,
+        SecurityCheck $security,
+        RouteCheck $routes,
+        VersionCheck $version,
+        ResourceCheck $resources,
     ) {
         $this->checks = [
             $environment,
@@ -36,6 +52,14 @@ class DoctorService
             $cache,
             $extensions,
             $integrity,
+            $queue,
+            $permissions,
+            $storage,
+            $logs,
+            $security,
+            $routes,
+            $version,
+            $resources,
         ];
     }
 
@@ -60,8 +84,6 @@ class DoctorService
     }
 
     /**
-     * Apply safe, deterministic fixes only.
-     *
      * @return array<int,array{label:string,ok:bool,detail:?string}>
      */
     public function fix(DoctorReport $report): array
@@ -88,7 +110,6 @@ class DoctorService
     {
         $title = $issue->title;
 
-        // Stale config cache
         if (str_contains($title, 'Configuration cache')) {
             try {
                 Artisan::call('config:clear');
@@ -99,7 +120,6 @@ class DoctorService
             }
         }
 
-        // Blueprint cache
         if (str_contains($title, 'Blueprint cache')) {
             try {
                 Artisan::call('bp:cache');
@@ -109,7 +129,6 @@ class DoctorService
             }
         }
 
-        // Pending Laravel migrations
         if (str_contains($title, 'Pending database migrations')) {
             try {
                 Artisan::call('migrate', ['--force' => true]);
@@ -119,17 +138,6 @@ class DoctorService
             }
         }
 
-        // Pending Blueprint migrations
-        if (str_contains($title, 'Pending Blueprint migrations')) {
-            try {
-                Artisan::call('bp:migrate', ['--force' => true]);
-                return ['label' => 'Applied pending Blueprint migrations', 'ok' => true, 'detail' => null];
-            } catch (\Throwable $e) {
-                return ['label' => 'Apply pending Blueprint migrations', 'ok' => false, 'detail' => $e->getMessage()];
-            }
-        }
-
-        // Install marker
         if (str_contains($title, 'installation incomplete')) {
             $path = base_path('.blueprint/extensions/blueprint/private/db/is_installed');
             if (@touch($path)) {
@@ -138,13 +146,39 @@ class DoctorService
             return ['label' => 'Recreate is_installed marker', 'ok' => false, 'detail' => 'Permission denied'];
         }
 
-        // Blueprint seed
         if (str_contains($title, 'configuration not seeded')) {
             try {
                 Artisan::call('db:seed', ['--class' => 'BlueprintSeeder', '--force' => true]);
                 return ['label' => 'Seeded Blueprint configuration', 'ok' => true, 'detail' => null];
             } catch (\Throwable $e) {
                 return ['label' => 'Seed Blueprint configuration', 'ok' => false, 'detail' => $e->getMessage()];
+            }
+        }
+
+        if (str_contains($title, 'public/storage link')) {
+            try {
+                Artisan::call('storage:link');
+                return ['label' => 'Created public/storage link', 'ok' => true, 'detail' => null];
+            } catch (\Throwable $e) {
+                return ['label' => 'Create public/storage link', 'ok' => false, 'detail' => $e->getMessage()];
+            }
+        }
+
+        if (str_contains($title, 'Admin extensions route not registered')) {
+            try {
+                Artisan::call('route:clear');
+                return ['label' => 'Cleared route cache', 'ok' => true, 'detail' => null];
+            } catch (\Throwable $e) {
+                return ['label' => 'Clear route cache', 'ok' => false, 'detail' => $e->getMessage()];
+            }
+        }
+
+        if (str_contains($title, 'Latest version unknown')) {
+            try {
+                Artisan::call('bp:version:cache');
+                return ['label' => 'Cached latest Blueprint version', 'ok' => true, 'detail' => null];
+            } catch (\Throwable $e) {
+                return ['label' => 'Cache latest Blueprint version', 'ok' => false, 'detail' => $e->getMessage()];
             }
         }
 
