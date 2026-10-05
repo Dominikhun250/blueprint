@@ -140,8 +140,6 @@ Command() {
 
   ((PROGRESS_NOW++))
 
-  echo "$VERSION" > .update/old_version
-
   # Delete files
   PRINT INFO "Deleting files.."
   rm -rf .blueprint
@@ -180,20 +178,6 @@ Command() {
   BLUEPRINT_ENVIRONMENT="upgrade2" PROGRESS_NOW="$PROGRESS_NOW" PROGRESS_TOTAL="$PROGRESS_TOTAL" bash blueprint.sh
 
   ((PROGRESS_NOW++))
-
-  if [[ -f ".update/old_version" ]]; then
-    OLD_VERSION="$(cat .update/old_version)"
-    if [[ -n "$OLD_VERSION" ]]; then
-      PRINT INFO "Checking for pending Blueprint migrations from $OLD_VERSION.."
-      hide_progress
-      php artisan bp:migrate --force --from="$OLD_VERSION"
-      migration_exit=$?
-      if [[ $migration_exit -ne 0 ]]; then
-        update_fail="true"
-        PRINT FATAL "Blueprint migrations failed; please resolve before continuing."
-      fi
-    fi
-  fi
 
   cleanup
 
