@@ -473,8 +473,6 @@ case "$cmd" in
   -upgrade) source ./scripts/commands/advanced/upgrade.sh ;;
   -unlock) source ./scripts/commands/advanced/unlock.sh ;;
   -doctor) source ./scripts/commands/advanced/doctor.sh ;;
-  -migrate) source ./scripts/commands/advanced/migrate.sh ;;
-  -migration) source ./scripts/commands/advanced/migration.sh ;;
 esac
 
 shift 2

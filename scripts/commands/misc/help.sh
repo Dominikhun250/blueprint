@@ -36,8 +36,6 @@ ${help_dev_primary}Developer${help_dev_status}\x1b[0m${help_dev_secondary}
 
 \x1b[34;1mAdvanced\x1b[0m\x1b[34m
   -doctor (--fix --json)     run Blueprint diagnostics
-  -migrate (--force)         run pending Blueprint migrations
-  -migration <action>        status|history|rollback|show
   -unlock                    remove lockfile
   -upgrade (remote <url>)    update/reset to another release
   -rerun-install             rerun the blueprint installation script
