@@ -42,7 +42,7 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
       -export) opts="expose" ;;
       -upgrade) opts="remote" ;;
 
-      *) opts="-install -add -remove -query -init -build -export -wipe -version -help -info -debug -upgrade -unlock -rerun-install -dist" ;;
+      *) opts="-install -add -remove -query -init -build -export -wipe -version -help -info -debug -upgrade -unlock -rerun-install -dist -doctor -migrate -migration" ;;
     esac
 
     if [[ ${cur} == * ]]; then
@@ -472,6 +472,9 @@ case "$cmd" in
   -rerun-install) source ./scripts/commands/advanced/rerun-install.sh ;;
   -upgrade) source ./scripts/commands/advanced/upgrade.sh ;;
   -unlock) source ./scripts/commands/advanced/unlock.sh ;;
+  -doctor) source ./scripts/commands/advanced/doctor.sh ;;
+  -migrate) source ./scripts/commands/advanced/migrate.sh ;;
+  -migration) source ./scripts/commands/advanced/migration.sh ;;
 esac
 
 shift 2
