@@ -21,7 +21,6 @@ class ResourceCheck implements CheckInterface
         if ($free !== false && $total !== false && $total > 0) {
             $freeGb = round($free / 1024 / 1024 / 1024, 2);
             $totalGb = round($total / 1024 / 1024 / 1024, 2);
-            $usedPct = round(100 - ($free / $total) * 100, 1);
 
             $status = Severity::INFO;
             if ($freeGb < 1) {
@@ -38,6 +37,7 @@ class ResourceCheck implements CheckInterface
                     'Very low disk space',
                     "Only {$freeGb} GB free. Panels typically need at least 1 GB free.",
                     'Free disk space before continuing.',
+                    true,  
                 ));
             } elseif ($freeGb < 5) {
                 $r->issue(new Issue(
@@ -45,6 +45,7 @@ class ResourceCheck implements CheckInterface
                     'Low disk space',
                     "Only {$freeGb} GB free.",
                     'Consider freeing disk space.',
+                    true,  
                 ));
             }
         } else {

@@ -140,6 +140,10 @@ class DoctorService
 
         if (str_contains($title, 'installation incomplete')) {
             $path = base_path('.blueprint/extensions/blueprint/private/db/is_installed');
+            $dir = dirname($path);
+            if (!is_dir($dir)) {
+                @mkdir($dir, 0755, true);
+            }
             if (@touch($path)) {
                 return ['label' => 'Recreated is_installed marker', 'ok' => true, 'detail' => null];
             }
@@ -179,6 +183,123 @@ class DoctorService
                 return ['label' => 'Cached latest Blueprint version', 'ok' => true, 'detail' => null];
             } catch (\Throwable $e) {
                 return ['label' => 'Cache latest Blueprint version', 'ok' => false, 'detail' => $e->getMessage()];
+            }
+        }
+
+        if (str_contains($title, 'Log directory is large')) {
+            try {
+                $logs = glob(storage_path('logs/*.log'));
+                $bytes = 0;
+                $count = 0;
+                foreach ($logs as $log) {
+                    $bytes += (int) @filesize($log);
+                    if (@file_put_contents($log, '') !== false) {
+                        $count++;
+                    }
+                }
+                $mb = round($bytes / 1024 / 1024, 1);
+                return [
+                    'label' => "Truncated {$count} log file(s) ({$mb} MB freed)",
+                    'ok' => true,
+                    'detail' => null,
+                ];
+            } catch (\Throwable $e) {
+                return ['label' => 'Truncate log files', 'ok' => false, 'detail' => $e->getMessage()];
+            }
+        }
+
+        if (str_contains($title, 'directories are not writable')) {
+            if (PHP_OS_FAMILY === 'Windows') {
+                return ['label' => 'Fix directory permissions', 'ok' => false, 'detail' => 'Not supported on Windows'];
+            }
+            try {
+                $paths = [
+                    storage_path(),
+                    storage_path('logs'),
+                    storage_path('framework'),
+                    storage_path('framework/cache'),
+                    storage_path('framework/sessions'),
+                    storage_path('framework/views'),
+                    base_path('bootstrap/cache'),
+                ];
+                $fixed = 0;
+                foreach ($paths as $p) {
+                    if (is_dir($p)) {
+                        if (@chmod($p, 0775)) {
+                            $fixed++;
+                        }
+                    }
+                }
+                return [
+                    'label' => "Applied chmod 775 to {$fixed} directory/ies",
+                    'ok' => true,
+                    'detail' => null,
+                ];
+            } catch (\Throwable $e) {
+                return ['label' => 'Apply chmod 775', 'ok' => false, 'detail' => $e->getMessage()];
+            }
+        }
+
+        if (str_contains($title, 'Blueprint public link is missing')) {
+            try {
+                $source = base_path('.blueprint/extensions/blueprint/public');
+                $target = public_path('extensions/blueprint');
+                if (!is_dir($source)) {
+                    return ['label' => 'Create Blueprint public link', 'ok' => false, 'detail' => 'Source missing: ' . $source];
+                }
+                if (is_link($target)) {
+                    @unlink($target);
+                } elseif (is_dir($target)) {
+                    $items = @scandir($target);
+                    if ($items !== false && count($items) > 2) {
+                        return ['label' => 'Create Blueprint public link', 'ok' => false, 'detail' => 'Target directory is not empty'];
+                    }
+                    @rmdir($target);
+                }
+                @mkdir(dirname($target), 0755, true);
+                if (@symlink($source, $target)) {
+                    return ['label' => 'Created Blueprint public symlink', 'ok' => true, 'detail' => null];
+                }
+                return ['label' => 'Create Blueprint public symlink', 'ok' => false, 'detail' => 'symlink() failed'];
+            } catch (\Throwable $e) {
+                return ['label' => 'Create Blueprint public symlink', 'ok' => false, 'detail' => $e->getMessage()];
+            }
+        }
+
+        if (str_contains($title, 'Schedules directory missing')) {
+            try {
+                $path = app_path('BlueprintFramework/Schedules');
+                if (@mkdir($path, 0755, true) || is_dir($path)) {
+                    return ['label' => 'Created Schedules directory', 'ok' => true, 'detail' => null];
+                }
+                return ['label' => 'Create Schedules directory', 'ok' => false, 'detail' => 'mkdir() failed'];
+            } catch (\Throwable $e) {
+                return ['label' => 'Create Schedules directory', 'ok' => false, 'detail' => $e->getMessage()];
+            }
+        }
+
+        if (str_contains($title, '.env file permissions are too permissive')) {
+            if (PHP_OS_FAMILY === 'Windows') {
+                return ['label' => 'Fix .env permissions', 'ok' => false, 'detail' => 'Not supported on Windows'];
+            }
+            $envFile = base_path('.env');
+            if (!file_exists($envFile)) {
+                return ['label' => 'Fix .env permissions', 'ok' => false, 'detail' => '.env not found'];
+            }
+            if (@chmod($envFile, 0640)) {
+                return ['label' => 'Set .env permissions to 0640', 'ok' => true, 'detail' => null];
+            }
+            return ['label' => 'Set .env permissions', 'ok' => false, 'detail' => 'chmod() failed'];
+        }
+
+        if (str_contains($title, 'Low disk space') || str_contains($title, 'Very low disk space')) {
+            try {
+                Artisan::call('cache:clear');
+                Artisan::call('view:clear');
+                Artisan::call('route:clear');
+                return ['label' => 'Cleared caches to free disk space', 'ok' => true, 'detail' => null];
+            } catch (\Throwable $e) {
+                return ['label' => 'Clear caches', 'ok' => false, 'detail' => $e->getMessage()];
             }
         }
 

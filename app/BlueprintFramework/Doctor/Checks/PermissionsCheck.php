@@ -45,6 +45,7 @@ class PermissionsCheck implements CheckInterface
                 'Some directories are not writable',
                 'Not writable: ' . implode(', ', $notWritable),
                 'Fix with: chown -R www-data:www-data storage bootstrap/cache && chmod -R 775 storage bootstrap/cache',
+                true, 
             ));
         }
 
@@ -83,6 +84,7 @@ class PermissionsCheck implements CheckInterface
                     'Log directory is large',
                     "The logs directory is {$mb} MB. This can fill up the disk.",
                     'Truncate the log files: truncate -s 0 storage/logs/*.log',
+                    true,  
                 ));
             }
         }

@@ -26,7 +26,7 @@ class StorageCheck implements CheckInterface
                 'public/storage link is missing',
                 'The Laravel storage link has not been created.',
                 'Run: php artisan storage:link',
-                true,
+                true, 
             ));
         }
 
@@ -40,6 +40,7 @@ class StorageCheck implements CheckInterface
                 'Blueprint public link is missing',
                 'The Blueprint extension public directory is not linked.',
                 'Rerun the installer: blueprint -rerun-install',
+                true,  
             ));
         }
 
@@ -53,7 +54,7 @@ class StorageCheck implements CheckInterface
                 'Schedules directory missing',
                 'Extension schedules cannot be registered.',
                 'Create the directory: mkdir -p app/BlueprintFramework/Schedules',
-                true,
+                true,  
             ));
         }
 

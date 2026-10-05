@@ -84,6 +84,7 @@ class SecurityCheck implements CheckInterface
                     '.env file permissions are too permissive',
                     "Current: {$perms}, recommended: 0600 or 0640",
                     'Run: chmod 640 .env',
+                    true, 
                 ));
             }
         }
