@@ -42,7 +42,7 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
       -export) opts="expose" ;;
       -upgrade) opts="remote" ;;
 
-      *) opts="-install -add -remove -query -init -build -export -wipe -version -help -info -debug -upgrade -unlock -rerun-install -dist -doctor -migrate -migration" ;;
+      *) opts="-install -add -remove -query -init -build -export -wipe -version -help -info -debug -upgrade -unlock -rerun-install -dist -doctor" ;;
     esac
 
     if [[ ${cur} == * ]]; then

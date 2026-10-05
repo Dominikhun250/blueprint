@@ -75,7 +75,6 @@ class ExtensionCheck implements CheckInterface
             $version = $info['version'] ?? 'unknown';
             $target = $info['target'] ?? '';
 
-            // Compatibility
             $compatible = true;
             $reason = '';
             if ($target !== '' && $current !== 'rolling' && $target !== $current) {
@@ -99,14 +98,12 @@ class ExtensionCheck implements CheckInterface
                 ));
             }
 
-            // Required dependencies (if declared)
             $requires = $conf['requires'] ?? [];
             foreach ((array) $requires as $dep => $constraint) {
                 if (!is_string($dep)) {
                     continue;
                 }
                 if (str_starts_with($dep, 'blueprint/')) {
-                    // Blueprint core dependency
                     $satisfied = $this->satisfiesBlueprintConstraint((string) $constraint, $current);
                     if (!$satisfied) {
                         $r->issue(new Issue(
