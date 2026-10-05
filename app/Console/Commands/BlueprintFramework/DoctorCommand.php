@@ -61,7 +61,7 @@ class DoctorCommand extends Command
         $this->newLine();
 
         foreach ($report->results() as $result) {
-            $this->line('<options=bold>' . $result->title() . '</>');
+            $this->line('<options=bold>' . $result->title . '</>');
             foreach ($result->rows() as $row) {
                 $marker = '  ';
                 $markerColor = 'gray';
